@@ -11,5 +11,4 @@ public class MoneySandboxApplication {
     public static void main(String[] args) {
         SpringApplication.run(MoneySandboxApplication.class, args);
     }
-
 }
