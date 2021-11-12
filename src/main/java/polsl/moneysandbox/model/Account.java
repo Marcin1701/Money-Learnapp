@@ -11,12 +11,22 @@ import java.time.LocalDateTime;
 @Builder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class Student {
+public class Account {
 
     @Id
     private String id;
 
-    private String username;
+    private String login;
+
+    private String password;
+
+    private String firstName;
+
+    private String lastName;
+
+    private String accountType;
+
+    private String email;
 
     private LocalDateTime creationDate;
 }
