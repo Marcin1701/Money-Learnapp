@@ -35,5 +35,4 @@ public class EntryApi {
     public void register(@RequestBody NewAccountRequest newAccountRequest) {
         this.entryService.register(newAccountRequest);
     }
-
 }

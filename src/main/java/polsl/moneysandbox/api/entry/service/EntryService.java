@@ -12,7 +12,6 @@ import polsl.moneysandbox.model.Account;
 import polsl.moneysandbox.repository.AccountRepository;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @AllArgsConstructor

@@ -4,10 +4,10 @@ import lombok.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
 @Setter
+@Getter
 @ToString
 public class JsonWebTokenResponse {
 
-    private String jwt;
+    private String jsonWebToken;
 }
