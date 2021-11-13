@@ -21,7 +21,7 @@ public class MoneySandboxApplication {
         return new WebMvcConfigurerAdapter() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**").allowedOrigins("http://localhost:4200", "https://szkatulkowy-ambaras.herokuapp.com/");
+                registry.addMapping("/**").allowedOrigins("http://localhost:4200", "https://szkatulkowy-ambaras.herokuapp.com");
             }
         };
     }
