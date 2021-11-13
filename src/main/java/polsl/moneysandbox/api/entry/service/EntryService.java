@@ -22,14 +22,6 @@ public class EntryService {
 
     private final PasswordEncoder passwordEncoder;
 
-    public List<Account> getAllStudents() {
-        return this.accountRepository.findAll();
-    }
-
-    public JsonWebTokenResponse login(LoginRequest newAccountRequest) {
-        return null;
-    }
-
     public void register(NewAccountRequest newAccountRequest) {
         if (this.accountRepository.findAccountByEmailOrLogin(newAccountRequest.getEmail(), newAccountRequest.getLogin()).isPresent()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User already exists");
@@ -44,5 +36,13 @@ public class EntryService {
                         .password(this.passwordEncoder.encode(newAccountRequest.getPassword()))
                         .login(newAccountRequest.getLogin())
                         .build());
+    }
+
+    public JsonWebTokenResponse login(LoginRequest loginRequest, String token) {
+        var user = this.accountRepository.findAccountByEmailOrLogin(loginRequest.getLogin(), loginRequest.getLogin());
+        if (user.isPresent() && passwordEncoder.matches(loginRequest.getPassword(), user.get().getPassword())) {
+            return new JsonWebTokenResponse(token);
+        }
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found");
     }
 }
