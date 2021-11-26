@@ -25,6 +25,11 @@ public class EntryApi {
         this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(login, password));
     }
 
+    @GetMapping("/validate")
+    public JsonWebTokenResponse validateToken(@RequestHeader("Authorization") String token) {
+        return this.entryService.validateToken(token);
+    }
+
     @PostMapping("/login")
     public JsonWebTokenResponse login(@RequestBody LoginRequest loginRequest) {
         this.authenticate(loginRequest.getLogin(), loginRequest.getPassword());

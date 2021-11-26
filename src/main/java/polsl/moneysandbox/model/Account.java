@@ -3,10 +3,15 @@ package polsl.moneysandbox.model;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import polsl.moneysandbox.model.Questions.DragAndDrop;
+import polsl.moneysandbox.model.Questions.MultipleChoice;
+import polsl.moneysandbox.model.Questions.OrderedList;
+import polsl.moneysandbox.model.Questions.SingleChoice;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
-@Document("student")
+@Document("account")
 @Data
 @Builder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
@@ -29,4 +34,12 @@ public class Account {
     private String email;
 
     private LocalDateTime creationDate;
+
+    private List<Question<SingleChoice>> singleChoiceQuestions;
+
+    private List<Question<MultipleChoice>> multipleChoiceQuestions;
+
+    private List<Question<OrderedList>> orderedListQuestions;
+
+    private List<Question<DragAndDrop>> dragAndDropQuestions;
 }
