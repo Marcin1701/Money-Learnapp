@@ -1,6 +1,7 @@
 package polsl.moneysandbox.model;
 
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import polsl.moneysandbox.model.Questions.DragAndDrop;
@@ -13,9 +14,9 @@ import java.util.List;
 
 @Document("account")
 @Data
-@Builder(toBuilder = true)
-@NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@SuperBuilder(toBuilder = true)
+@AllArgsConstructor
+@NoArgsConstructor
 public class Account {
 
     @Id
@@ -42,4 +43,6 @@ public class Account {
     private List<Question<OrderedList>> orderedListQuestions;
 
     private List<Question<DragAndDrop>> dragAndDropQuestions;
+
+    private List<Student> students;
 }
