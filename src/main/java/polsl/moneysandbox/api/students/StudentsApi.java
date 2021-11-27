@@ -2,8 +2,8 @@ package polsl.moneysandbox.api.students;
 
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import polsl.moneysandbox.api.students.Response.GeneratedPasswordResponse;
-import polsl.moneysandbox.api.students.Response.StudentResponse;
+import polsl.moneysandbox.api.students.response.GeneratedPasswordResponse;
+import polsl.moneysandbox.api.students.response.StudentResponse;
 import polsl.moneysandbox.api.students.request.StudentRequest;
 import polsl.moneysandbox.api.students.service.StudentsService;
 
@@ -26,5 +26,10 @@ public class StudentsApi {
                                                    @RequestHeader("Authorization") String token
     ) {
         return this.studentsService.addNewStudent(studentRequest, token);
+    }
+
+    @GetMapping("/toggle-creator-allowance")
+    public void toggleCreatorAllowance(@RequestHeader("Authorization") String token, @RequestParam("id") String id) {
+        this.studentsService.toggleCreatorAllowance(token, id);
     }
 }
