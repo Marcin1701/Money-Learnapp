@@ -1,4 +1,4 @@
-package polsl.moneysandbox.api.students.Response;
+package polsl.moneysandbox.api.students.response;
 
 import lombok.*;
 
@@ -9,6 +9,8 @@ import lombok.*;
 @Setter
 @ToString
 public class StudentResponse {
+
+    private String id;
 
     private String firstName;
 

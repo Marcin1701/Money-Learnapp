@@ -1,4 +1,4 @@
-package polsl.moneysandbox.api.students.Response;
+package polsl.moneysandbox.api.students.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
