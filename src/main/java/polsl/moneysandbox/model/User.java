@@ -1,23 +1,22 @@
 package polsl.moneysandbox.model;
 
 import lombok.*;
-import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import polsl.moneysandbox.model.Questions.DragAndDrop;
-import polsl.moneysandbox.model.Questions.MultipleChoice;
-import polsl.moneysandbox.model.Questions.OrderedList;
-import polsl.moneysandbox.model.Questions.SingleChoice;
+import polsl.moneysandbox.model.question.DragAndDrop;
+import polsl.moneysandbox.model.question.MultipleChoice;
+import polsl.moneysandbox.model.question.OrderedList;
+import polsl.moneysandbox.model.question.SingleChoice;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Document("account")
+@Document("User")
 @Data
-@SuperBuilder(toBuilder = true)
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class Account {
+public class User {
 
     @Id
     private String id;
@@ -30,9 +29,9 @@ public class Account {
 
     private String lastName;
 
-    private String accountType;
-
     private String email;
+
+    private String role;
 
     private LocalDateTime creationDate;
 
@@ -44,5 +43,7 @@ public class Account {
 
     private List<Question<DragAndDrop>> dragAndDropQuestions;
 
-    private List<Student> students;
+    private List<Form> sheets;
+
+    private List<Answer> answers;
 }

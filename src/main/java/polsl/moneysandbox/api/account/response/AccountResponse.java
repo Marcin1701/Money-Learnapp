@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import polsl.moneysandbox.model.Account;
+import polsl.moneysandbox.model.User;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -18,18 +18,15 @@ public class AccountResponse {
 
     private String lastName;
 
-    private String accountType;
-
     private String email;
 
     private String creationDate;
 
-    public AccountResponse(Account account) {
-        this.login = account.getLogin();
-        this.firstName = account.getFirstName();
-        this.lastName = account.getLastName();
-        this.accountType = account.getAccountType();
-        this.email = account.getEmail();
-        this.creationDate = account.getCreationDate().toString();
+    public AccountResponse(User user) {
+        this.login = user.getLogin();
+        this.firstName = user.getFirstName();
+        this.lastName = user.getLastName();
+        this.email = user.getEmail();
+        this.creationDate = user.getCreationDate().toString();
     }
 }

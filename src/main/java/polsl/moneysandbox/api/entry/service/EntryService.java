@@ -9,8 +9,8 @@ import polsl.moneysandbox.api.entry.jwt.JwtTokenUtility;
 import polsl.moneysandbox.api.entry.service.request.LoginRequest;
 import polsl.moneysandbox.api.entry.service.request.NewAccountRequest;
 import polsl.moneysandbox.api.entry.service.response.JsonWebTokenResponse;
-import polsl.moneysandbox.model.Account;
-import polsl.moneysandbox.repository.AccountRepository;
+import polsl.moneysandbox.model.User;
+import polsl.moneysandbox.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -19,19 +19,19 @@ import java.util.Date;
 @AllArgsConstructor
 public class EntryService {
 
-    private final AccountRepository accountRepository;
+    private final UserRepository userRepository;
 
     private final PasswordEncoder passwordEncoder;
 
     private final JwtTokenUtility jwtTokenUtility;
 
     public void register(NewAccountRequest newAccountRequest) {
-        if (this.accountRepository.findAccountByEmailOrLogin(newAccountRequest.getEmail(), newAccountRequest.getLogin()).isPresent()) {
+        if (this.userRepository.findAccountByEmailOrLogin(newAccountRequest.getEmail(), newAccountRequest.getLogin()).isPresent()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User already exists");
         }
-        this.accountRepository.save(
-                Account.builder()
-                        .accountType(newAccountRequest.getAccountType())
+        this.userRepository.save(
+                User.builder()
+                        .role("USER")
                         .creationDate(LocalDateTime.now())
                         .firstName(newAccountRequest.getFirstName())
                         .lastName(newAccountRequest.getLastName())
@@ -42,7 +42,7 @@ public class EntryService {
     }
 
     public JsonWebTokenResponse login(LoginRequest loginRequest, String token) {
-        var user = this.accountRepository.findAccountByEmailOrLogin(loginRequest.getLogin(), loginRequest.getLogin());
+        var user = this.userRepository.findAccountByEmailOrLogin(loginRequest.getLogin(), loginRequest.getLogin());
         if (user.isPresent() && passwordEncoder.matches(loginRequest.getPassword(), user.get().getPassword())) {
             return new JsonWebTokenResponse(token);
         }

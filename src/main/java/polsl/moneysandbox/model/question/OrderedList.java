@@ -1,8 +1,6 @@
-package polsl.moneysandbox.model.Questions;
+package polsl.moneysandbox.model.question;
 
 import lombok.*;
-
-import java.util.List;
 
 @Builder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
@@ -10,15 +8,11 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
-public class SingleChoice {
+public class OrderedList {
 
     private String question;
 
     private String name;
 
     private String answerTime;
-
-    private Integer correctSingleChoiceIndex;
-
-    private List<String> singleChoiceOptions;
 }
