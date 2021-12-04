@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import polsl.moneysandbox.api.question.service.QuestionService;
 import polsl.moneysandbox.api.question.service.request.QuestionRequest;
 import polsl.moneysandbox.api.question.service.response.QuestionResponse;
-import polsl.moneysandbox.model.Questions.SingleChoice;
+import polsl.moneysandbox.model.question.SingleChoice;
 
 import java.util.List;
 

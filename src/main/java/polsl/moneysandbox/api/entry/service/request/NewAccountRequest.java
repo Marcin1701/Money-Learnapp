@@ -18,6 +18,4 @@ public class NewAccountRequest {
     private String email;
 
     private String password;
-
-    private String accountType;
 }

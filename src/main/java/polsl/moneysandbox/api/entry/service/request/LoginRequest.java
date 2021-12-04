@@ -21,7 +21,7 @@ public class LoginRequest implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        String role = "TEACHER";
+        String role = "USER";
         return Collections.singleton(new SimpleGrantedAuthority(role));
     }
 

@@ -10,6 +10,8 @@ import polsl.moneysandbox.model.Question;
 @ToString
 public class QuestionResponse<T> {
 
+    private String id;
+
     private String type;
 
     private String creationDate;
@@ -17,6 +19,7 @@ public class QuestionResponse<T> {
     private T question;
 
     public QuestionResponse(Question<T> question) {
+        this.id = question.getId();
         this.type = question.getType();
         this.creationDate = question.getCreationDate();
         this.question = question.getQuestion();

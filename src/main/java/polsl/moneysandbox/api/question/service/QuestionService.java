@@ -7,13 +7,13 @@ import org.springframework.web.server.ResponseStatusException;
 import polsl.moneysandbox.api.entry.jwt.JwtTokenUtility;
 import polsl.moneysandbox.api.question.service.request.QuestionRequest;
 import polsl.moneysandbox.api.question.service.response.QuestionResponse;
-import polsl.moneysandbox.model.Account;
+import polsl.moneysandbox.model.User;
 import polsl.moneysandbox.model.Question;
-import polsl.moneysandbox.model.Questions.DragAndDrop;
-import polsl.moneysandbox.model.Questions.MultipleChoice;
-import polsl.moneysandbox.model.Questions.OrderedList;
-import polsl.moneysandbox.model.Questions.SingleChoice;
-import polsl.moneysandbox.repository.AccountRepository;
+import polsl.moneysandbox.model.question.DragAndDrop;
+import polsl.moneysandbox.model.question.MultipleChoice;
+import polsl.moneysandbox.model.question.OrderedList;
+import polsl.moneysandbox.model.question.SingleChoice;
+import polsl.moneysandbox.repository.UserRepository;
 import polsl.moneysandbox.repository.QuestionRepository;
 
 import java.time.LocalDateTime;
@@ -27,12 +27,12 @@ public class QuestionService {
 
     private final JwtTokenUtility jwtTokenUtility;
 
-    private final AccountRepository accountRepository;
+    private final UserRepository userRepository;
 
     private final QuestionRepository questionRepository;
 
     public void addQuestion(QuestionRequest<?> question, String token) {
-        Account account = accountRepository
+        User user = userRepository
                 .findAccountByEmailOrLogin(
                         jwtTokenUtility.getUsernameFromToken(token),
                         jwtTokenUtility.getUsernameFromToken(token))
@@ -43,21 +43,21 @@ public class QuestionService {
                 SingleChoice singleChoiceQuestion = createSingleChoice((LinkedHashMap<?, ?>) question.getStructure());
                 createdQuestion.setType(question.getType());
                 createdQuestion.setCreationDate(LocalDateTime.now().toString());
-                createdQuestion.setCreatorId(account.getId());
+                createdQuestion.setCreatorId(user.getId());
                 createdQuestion.setQuestion(singleChoiceQuestion);
-                List<Question<SingleChoice>> createdSingleChoiceQuestions = account.getSingleChoiceQuestions();
+                List<Question<SingleChoice>> createdSingleChoiceQuestions = user.getSingleChoiceQuestions();
                 if (createdSingleChoiceQuestions == null) {
                     createdSingleChoiceQuestions = new ArrayList<>();
                 }
                 createdSingleChoiceQuestions.add(createdQuestion);
-                account.setSingleChoiceQuestions(createdSingleChoiceQuestions);
+                user.setSingleChoiceQuestions(createdSingleChoiceQuestions);
             }
             // TODO INNE PYTANIA
             case "MULTIPLE_CHOICE", "LIST", "DRAG_AND_DROP" -> {
             }
             default -> throw new IllegalStateException("Unexpected question type");
         }
-        accountRepository.save(account);
+        userRepository.save(user);
         questionRepository.save(createdQuestion);
     }
 
@@ -87,14 +87,14 @@ public class QuestionService {
     }
 
     public List<QuestionResponse<SingleChoice>> getSingleChoiceQuestions(String token) {
-        Account account = accountRepository
+        User user = userRepository
                 .findAccountByEmailOrLogin(
                         jwtTokenUtility.getUsernameFromToken(token),
                         jwtTokenUtility.getUsernameFromToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         @SuppressWarnings("unchecked")
         List<Question<SingleChoice>> questionList = questionRepository
-                .findAllByCreatorIdAndType(account.getId(), "SINGLE_CHOICE")
+                .findAllByCreatorIdAndType(user.getId(), "SINGLE_CHOICE")
                 .stream()
                 .map(question -> (Question<SingleChoice>) question)
                 .toList();
