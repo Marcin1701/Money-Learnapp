@@ -12,6 +12,8 @@ import polsl.moneysandbox.model.Form;
 @Setter
 public class FormResponse {
 
+    private String id;
+
     private String name;
 
     private Integer questions;
@@ -25,6 +27,7 @@ public class FormResponse {
     private Boolean isPublic;
 
     public FormResponse(Form form) {
+        this.id = form.getId();
         this.name = form.getName();
         this.questions = form.getQuestionsIds().size();
         this.answerTime = form.getAnswerTime();
