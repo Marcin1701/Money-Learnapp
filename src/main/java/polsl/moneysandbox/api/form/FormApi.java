@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import polsl.moneysandbox.api.form.request.FormRequest;
 import polsl.moneysandbox.api.form.response.FormResponse;
+import polsl.moneysandbox.api.form.response.HomeFormResponse;
 import polsl.moneysandbox.api.form.service.FormService;
 
 import java.util.List;
@@ -15,9 +16,14 @@ public class FormApi {
 
     private final FormService formService;
 
-    @GetMapping("/all")
+    @GetMapping
     public List<FormResponse> getForms(@RequestHeader("Authorization") String token) {
         return this.formService.getForms(token);
+    }
+
+    @GetMapping("/public")
+    public List<HomeFormResponse> getPublicForms() {
+        return this.formService.getPublicForms();
     }
 
     @PostMapping("/add")

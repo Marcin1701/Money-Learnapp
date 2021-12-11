@@ -6,9 +6,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.web.bind.annotation.*;
 import polsl.moneysandbox.api.entry.jwt.JwtTokenUtility;
 import polsl.moneysandbox.api.entry.service.EntryService;
-import polsl.moneysandbox.api.entry.service.request.LoginRequest;
-import polsl.moneysandbox.api.entry.service.request.NewAccountRequest;
-import polsl.moneysandbox.api.entry.service.response.JsonWebTokenResponse;
+import polsl.moneysandbox.api.entry.request.LoginRequest;
+import polsl.moneysandbox.api.entry.request.NewAccountRequest;
+import polsl.moneysandbox.api.entry.response.JsonWebTokenResponse;
 
 @RestController
 @RequestMapping("/api/entry")

@@ -8,4 +8,6 @@ import java.util.List;
 public interface FormRepository extends MongoRepository<Form, String> {
 
     List<Form> getAllByCreatorId(String id);
+
+    List<Form> getAllByIsPublic(Boolean isPublic);
 }

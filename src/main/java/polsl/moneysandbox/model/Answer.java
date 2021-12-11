@@ -31,6 +31,9 @@ public class Answer {
     @Nullable
     private String userId;
 
+    @Nullable
+    private String answerer;
+
     private String sheetId;
 
     private Integer correctAnswers;
