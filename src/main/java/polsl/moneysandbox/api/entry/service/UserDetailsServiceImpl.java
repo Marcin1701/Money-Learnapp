@@ -5,7 +5,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import polsl.moneysandbox.api.entry.service.request.LoginRequest;
+import polsl.moneysandbox.api.entry.request.LoginRequest;
 import polsl.moneysandbox.repository.UserRepository;
 
 @Service

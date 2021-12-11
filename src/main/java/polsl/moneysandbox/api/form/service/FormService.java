@@ -7,6 +7,7 @@ import org.springframework.web.server.ResponseStatusException;
 import polsl.moneysandbox.api.entry.jwt.JwtTokenUtility;
 import polsl.moneysandbox.api.form.request.FormRequest;
 import polsl.moneysandbox.api.form.response.FormResponse;
+import polsl.moneysandbox.api.form.response.HomeFormResponse;
 import polsl.moneysandbox.model.Form;
 import polsl.moneysandbox.model.Question;
 import polsl.moneysandbox.model.User;
@@ -17,6 +18,7 @@ import polsl.moneysandbox.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -65,5 +67,14 @@ public class FormService {
             questionEntity.setFormIds(formIds);
             questionRepository.save(questionEntity);
         });
+    }
+
+    public List<HomeFormResponse> getPublicForms() {
+        List<HomeFormResponse> homeFormResponses = new ArrayList<>();
+        formRepository.getAllByIsPublic(true).forEach(form -> {
+            User creator = userRepository.findById(form.getCreatorId()).orElse(User.builder().firstName("Brak").lastName("Konta").build());
+            homeFormResponses.add(new HomeFormResponse(form, creator));
+        });
+        return homeFormResponses;
     }
 }

@@ -6,9 +6,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import polsl.moneysandbox.api.entry.jwt.JwtTokenUtility;
-import polsl.moneysandbox.api.entry.service.request.LoginRequest;
-import polsl.moneysandbox.api.entry.service.request.NewAccountRequest;
-import polsl.moneysandbox.api.entry.service.response.JsonWebTokenResponse;
+import polsl.moneysandbox.api.entry.request.LoginRequest;
+import polsl.moneysandbox.api.entry.request.NewAccountRequest;
+import polsl.moneysandbox.api.entry.response.JsonWebTokenResponse;
 import polsl.moneysandbox.model.User;
 import polsl.moneysandbox.repository.UserRepository;
 

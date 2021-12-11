@@ -1,4 +1,4 @@
-package polsl.moneysandbox.api.entry.service.request;
+package polsl.moneysandbox.api.entry.request;
 
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
