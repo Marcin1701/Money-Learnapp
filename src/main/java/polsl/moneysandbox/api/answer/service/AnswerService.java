@@ -5,12 +5,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import polsl.moneysandbox.api.answer.request.AnswersRequest;
+import polsl.moneysandbox.api.answer.response.AnswersSummary;
 import polsl.moneysandbox.api.answer.response.FormAnswerResponse;
 import polsl.moneysandbox.api.answer.response.ResultsResponse;
+import polsl.moneysandbox.api.entry.jwt.JwtTokenUtility;
 import polsl.moneysandbox.api.question.service.response.QuestionResponse;
 import polsl.moneysandbox.model.Answer;
 import polsl.moneysandbox.model.Form;
 import polsl.moneysandbox.model.Question;
+import polsl.moneysandbox.model.User;
 import polsl.moneysandbox.model.answer.DragAndDropAnswer;
 import polsl.moneysandbox.model.answer.MultipleChoiceAnswer;
 import polsl.moneysandbox.model.answer.OrderedListAnswer;
@@ -19,6 +22,7 @@ import polsl.moneysandbox.model.question.SingleChoice;
 import polsl.moneysandbox.repository.AnswerRepository;
 import polsl.moneysandbox.repository.FormRepository;
 import polsl.moneysandbox.repository.QuestionRepository;
+import polsl.moneysandbox.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -35,6 +39,10 @@ public class AnswerService {
     private final QuestionRepository questionRepository;
 
     private final AnswerRepository answerRepository;
+
+    private final UserRepository userRepository;
+
+    private final JwtTokenUtility jwtTokenUtility;
 
     public ResultsResponse addAnswers(AnswersRequest answersRequest) {
         Form form = formRepository.findById(answersRequest.getFormId())
@@ -89,6 +97,9 @@ public class AnswerService {
         if (answersRequest.getAnswerer() != null) {
             answerEntity.setAnswerer(answersRequest.getAnswerer());
         }
+        if (answersRequest.getUserId() != null) {
+            answerEntity.setUserId(answersRequest.getUserId());
+        }
         answerRepository.save(answerEntity);
         List<Answer> answers = form.getAnswers();
         if (answers == null) {
@@ -123,5 +134,32 @@ public class AnswerService {
                 .optionChosen((Integer) answer.get("optionChosen"))
                 .questionId((String) answer.get("questionId"))
                 .build();
+    }
+
+    public AnswersSummary getAnswersSummary(String token) {
+        User user = userRepository
+                .findAccountByEmailOrLogin(
+                        jwtTokenUtility.getUsernameFromToken(token),
+                        jwtTokenUtility.getUsernameFromToken(token))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        List<Answer> answers = answerRepository.findAllByUserId(user.getId());
+        AnswersSummary answersSummary = new AnswersSummary();
+        Integer allAnswers = answers.size();
+        AtomicReference<Integer> allQuestions = new AtomicReference<>(0);
+        AtomicReference<Integer> allCorrectQuestions = new AtomicReference<>(0);
+        AtomicReference<Integer> allWrongQuestions = new AtomicReference<>(0);
+        AtomicReference<Float> sumOfPercentages = new AtomicReference<>((float) 0);
+        answers.forEach(answer -> {
+            allCorrectQuestions.updateAndGet(v -> v + answer.getCorrectAnswers());
+            allWrongQuestions.updateAndGet(v -> v + answer.getWrongAnswers());
+            allQuestions.updateAndGet(v -> v + answer.getAllAnswers());
+            sumOfPercentages.updateAndGet(v -> v + (float) answer.getCorrectAnswers() / answer.getAllAnswers());
+        });
+        answersSummary.setAllAnswers(allAnswers);
+        answersSummary.setAllAnswersPercentage(((sumOfPercentages.get() / allAnswers) * 100) + "%");
+        answersSummary.setAllCorrectQuestions(allCorrectQuestions.get());
+        answersSummary.setAllWrongQuestions(allWrongQuestions.get());
+        answersSummary.setAllQuestions(allQuestions.get());
+        return answersSummary;
     }
 }

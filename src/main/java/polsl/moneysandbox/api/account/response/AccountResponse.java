@@ -12,6 +12,8 @@ import polsl.moneysandbox.model.User;
 @Setter
 public class AccountResponse {
 
+    private String id;
+
     private String login;
 
     private String firstName;
@@ -23,6 +25,7 @@ public class AccountResponse {
     private String creationDate;
 
     public AccountResponse(User user) {
+        this.id = user.getId();
         this.login = user.getLogin();
         this.firstName = user.getFirstName();
         this.lastName = user.getLastName();
