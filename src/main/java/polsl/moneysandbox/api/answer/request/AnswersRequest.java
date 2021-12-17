@@ -14,5 +14,7 @@ public class AnswersRequest {
 
     private String answerer;
 
+    private String userId;
+
     private List<AnswerRequest<?>> answers;
 }
