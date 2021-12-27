@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import polsl.moneysandbox.api.question.service.QuestionService;
 import polsl.moneysandbox.api.question.service.request.QuestionRequest;
 import polsl.moneysandbox.api.question.service.response.QuestionResponse;
+import polsl.moneysandbox.model.question.MultipleChoice;
 import polsl.moneysandbox.model.question.SingleChoice;
 
 import java.util.List;
@@ -19,6 +20,11 @@ public class QuestionApi {
     @GetMapping("/single_choice")
     public List<QuestionResponse<SingleChoice>> getSingleChoiceQuestions(@RequestHeader("Authorization") String token) {
         return this.questionService.getSingleChoiceQuestions(token);
+    }
+
+    @GetMapping("/multiple_choice")
+    public List<QuestionResponse<MultipleChoice>> getMultipleChoiceQuestions(@RequestHeader("Authorization") String token) {
+        return this.questionService.getMultipleChoiceQuestions(token);
     }
 
     @PostMapping("/new")

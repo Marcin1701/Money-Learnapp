@@ -18,6 +18,7 @@ import polsl.moneysandbox.model.answer.DragAndDropAnswer;
 import polsl.moneysandbox.model.answer.MultipleChoiceAnswer;
 import polsl.moneysandbox.model.answer.OrderedListAnswer;
 import polsl.moneysandbox.model.answer.SingleChoiceAnswer;
+import polsl.moneysandbox.model.question.MultipleChoice;
 import polsl.moneysandbox.model.question.SingleChoice;
 import polsl.moneysandbox.repository.AnswerRepository;
 import polsl.moneysandbox.repository.FormRepository;
@@ -53,6 +54,7 @@ public class AnswerService {
         List<MultipleChoiceAnswer> multipleChoiceAnswers = new ArrayList<>();
         List<OrderedListAnswer> orderedListAnswers = new ArrayList<>();
         List<DragAndDropAnswer> dragAndDropAnswers = new ArrayList<>();
+        AtomicReference<Integer> allAnswers = new AtomicReference<>(0);
         AtomicReference<Integer> correctAnswers = new AtomicReference<>(0);
         AtomicReference<Integer> wrongAnswers = new AtomicReference<>(0);
         form.getQuestionsIds().forEach(question -> {
@@ -74,18 +76,30 @@ public class AnswerService {
                         }
                     }
                     case "MULTIPLE_CHOICE" -> {
-
+                        MultipleChoiceAnswer multipleChoiceAnswer = getMultipleChoiceAnswer(answerMap);
+                        if (multipleChoiceAnswer.getQuestionId().equals(entityQuestion.getId())) {
+                            multipleChoiceAnswers.add(multipleChoiceAnswer);
+                            MultipleChoice multipleChoice = (MultipleChoice) entityQuestion.getQuestion();
+                            multipleChoiceAnswer.getOptionsChosen().forEach(chosenOption -> {
+                                if (multipleChoice.getCorrectMultipleChoiceOptionIndices().stream().anyMatch(correct -> correct.equals(chosenOption))) {
+                                    correctAnswers.getAndSet(correctAnswers.get() + 1);
+                                } else {
+                                    wrongAnswers.getAndSet(wrongAnswers.get() + 1);
+                                }
+                            });
+                            allAnswers.getAndSet(allAnswers.get() + multipleChoice.getMultipleChoiceOptions().size());
+                        }
                     }
                 }
             });
         });
         response.setCorrectAnswers(correctAnswers.get());
         response.setWrongAnswers(wrongAnswers.get());
-        response.setPercentage(((response.getCorrectAnswers() * 100.0f) / response.getAllQuestions()) + "%");
+        response.setPercentage(((response.getCorrectAnswers() * 100.0f) / allAnswers.get()) + "%");
         Answer answerEntity = Answer.builder()
                 .sheetId(form.getId())
                 .answerTime(LocalDateTime.now())
-                .allAnswers(response.getAllQuestions())
+                .allAnswers(allAnswers.get())
                 .correctAnswers(response.getCorrectAnswers())
                 .wrongAnswers(response.getWrongAnswers())
                 .timeUsed(form.getAnswerTime())
@@ -132,6 +146,15 @@ public class AnswerService {
     private SingleChoiceAnswer getSingleChoiceAnswer(LinkedHashMap<?, ?> answer) {
         return SingleChoiceAnswer.builder()
                 .optionChosen((Integer) answer.get("optionChosen"))
+                .questionId((String) answer.get("questionId"))
+                .build();
+    }
+
+    private MultipleChoiceAnswer getMultipleChoiceAnswer(LinkedHashMap<?, ?> answer) {
+        @SuppressWarnings("unchecked")
+        var multipleChoiceOptions = (List<Integer>) answer.get("optionChosen");
+        return MultipleChoiceAnswer.builder()
+                .optionsChosen(multipleChoiceOptions)
                 .questionId((String) answer.get("questionId"))
                 .build();
     }
