@@ -37,28 +37,44 @@ public class QuestionService {
                         jwtTokenUtility.getUsernameFromToken(token),
                         jwtTokenUtility.getUsernameFromToken(token))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
-        Question<SingleChoice> createdQuestion = new Question<>();
         switch (question.getType()) {
             case "SINGLE_CHOICE" -> {
+                Question<SingleChoice> createdSingleChoiceQuestion = new Question<>();
                 SingleChoice singleChoiceQuestion = createSingleChoice((LinkedHashMap<?, ?>) question.getStructure());
-                createdQuestion.setType(question.getType());
-                createdQuestion.setCreationDate(LocalDateTime.now().toString());
-                createdQuestion.setCreatorId(user.getId());
-                createdQuestion.setQuestion(singleChoiceQuestion);
+                createdSingleChoiceQuestion.setType(question.getType());
+                createdSingleChoiceQuestion.setCreationDate(LocalDateTime.now().toString());
+                createdSingleChoiceQuestion.setCreatorId(user.getId());
+                createdSingleChoiceQuestion.setQuestion(singleChoiceQuestion);
                 List<Question<SingleChoice>> createdSingleChoiceQuestions = user.getSingleChoiceQuestions();
                 if (createdSingleChoiceQuestions == null) {
                     createdSingleChoiceQuestions = new ArrayList<>();
                 }
-                createdSingleChoiceQuestions.add(createdQuestion);
+                createdSingleChoiceQuestions.add(createdSingleChoiceQuestion);
                 user.setSingleChoiceQuestions(createdSingleChoiceQuestions);
+                userRepository.save(user);
+                questionRepository.save(createdSingleChoiceQuestion);
+            }
+            case "MULTIPLE_CHOICE" -> {
+                Question<MultipleChoice> createdMultipleChoiceQuestion = new Question<>();
+                MultipleChoice multipleChoiceQuestion = createMultipleChoice((LinkedHashMap<?, ?>) question.getStructure());
+                createdMultipleChoiceQuestion.setType(question.getType());
+                createdMultipleChoiceQuestion.setCreationDate(LocalDateTime.now().toString());
+                createdMultipleChoiceQuestion.setCreatorId(user.getId());
+                createdMultipleChoiceQuestion.setQuestion(multipleChoiceQuestion);
+                List<Question<MultipleChoice>> createdMultipleChoiceQuestions = user.getMultipleChoiceQuestions();
+                if (createdMultipleChoiceQuestions == null) {
+                    createdMultipleChoiceQuestions = new ArrayList<>();
+                }
+                createdMultipleChoiceQuestions.add(createdMultipleChoiceQuestion);
+                user.setMultipleChoiceQuestions(createdMultipleChoiceQuestions);
+                userRepository.save(user);
+                questionRepository.save(createdMultipleChoiceQuestion);
             }
             // TODO INNE PYTANIA
-            case "MULTIPLE_CHOICE", "LIST", "DRAG_AND_DROP" -> {
+            case "LIST", "DRAG_AND_DROP" -> {
             }
             default -> throw new IllegalStateException("Unexpected question type");
         }
-        userRepository.save(user);
-        questionRepository.save(createdQuestion);
     }
 
     private SingleChoice createSingleChoice(LinkedHashMap<?, ?> question) {
@@ -75,7 +91,17 @@ public class QuestionService {
     }
 
     private MultipleChoice createMultipleChoice(LinkedHashMap<?, ?> question) {
-        return null;
+        @SuppressWarnings("unchecked")
+        var multipleChoiceOptions = (List<String>) ((LinkedHashMap<?, ?>)question.get("value")).get("multipleChoiceOptions");
+        @SuppressWarnings("unchecked")
+        var multipleChoiceCorrectIndices = (List<Integer>) ((LinkedHashMap<?, ?>)question.get("value")).get("correctMultipleChoiceOptionIndices");
+        return MultipleChoice.builder()
+                .answerTime((String) question.get("answerTime"))
+                .name((String) question.get("name"))
+                .question((String) question.get("question"))
+                .multipleChoiceOptions(multipleChoiceOptions)
+                .correctMultipleChoiceOptionIndices(multipleChoiceCorrectIndices)
+                .build();
     }
 
     private OrderedList createOrderedList(LinkedHashMap<?, ?> question) {
@@ -97,6 +123,21 @@ public class QuestionService {
                 .findAllByCreatorIdAndType(user.getId(), "SINGLE_CHOICE")
                 .stream()
                 .map(question -> (Question<SingleChoice>) question)
+                .toList();
+        return questionList.stream().map(QuestionResponse::new).toList();
+    }
+
+    public List<QuestionResponse<MultipleChoice>> getMultipleChoiceQuestions(String token) {
+        User user = userRepository
+                .findAccountByEmailOrLogin(
+                        jwtTokenUtility.getUsernameFromToken(token),
+                        jwtTokenUtility.getUsernameFromToken(token))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        @SuppressWarnings("unchecked")
+        List<Question<MultipleChoice>> questionList = questionRepository
+                .findAllByCreatorIdAndType(user.getId(), "MULTIPLE_CHOICE")
+                .stream()
+                .map(question -> (Question<MultipleChoice>) question)
                 .toList();
         return questionList.stream().map(QuestionResponse::new).toList();
     }
