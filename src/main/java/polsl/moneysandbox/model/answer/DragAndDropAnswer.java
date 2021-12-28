@@ -11,4 +11,6 @@ import lombok.*;
 public class DragAndDropAnswer {
 
     private String questionId;
+
+    private Integer balance;
 }
