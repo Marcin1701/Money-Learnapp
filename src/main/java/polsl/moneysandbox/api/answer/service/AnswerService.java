@@ -18,7 +18,9 @@ import polsl.moneysandbox.model.answer.DragAndDropAnswer;
 import polsl.moneysandbox.model.answer.MultipleChoiceAnswer;
 import polsl.moneysandbox.model.answer.OrderedListAnswer;
 import polsl.moneysandbox.model.answer.SingleChoiceAnswer;
+import polsl.moneysandbox.model.question.DragAndDrop;
 import polsl.moneysandbox.model.question.MultipleChoice;
+import polsl.moneysandbox.model.question.OrderedList;
 import polsl.moneysandbox.model.question.SingleChoice;
 import polsl.moneysandbox.repository.AnswerRepository;
 import polsl.moneysandbox.repository.FormRepository;
@@ -74,6 +76,7 @@ public class AnswerService {
                                 wrongAnswers.getAndSet(wrongAnswers.get() + 1);
                             }
                         }
+                        allAnswers.getAndSet(allAnswers.get() + 1);
                     }
                     case "MULTIPLE_CHOICE" -> {
                         MultipleChoiceAnswer multipleChoiceAnswer = getMultipleChoiceAnswer(answerMap);
@@ -88,6 +91,34 @@ public class AnswerService {
                                 }
                             });
                             allAnswers.getAndSet(allAnswers.get() + multipleChoice.getMultipleChoiceOptions().size());
+                        }
+                    }
+                    case "ORDERED_LIST" -> {
+                        OrderedListAnswer orderedListAnswer = getOrderedListAnswer(answerMap);
+                        if (orderedListAnswer.getQuestionId().equals(entityQuestion.getId())) {
+                            orderedListAnswers.add(orderedListAnswer);
+                            OrderedList orderedList = (OrderedList) entityQuestion.getQuestion();
+                            for (int optionIndex = 0; optionIndex < orderedListAnswer.getOptionsChosen().size(); optionIndex++) {
+                                if (orderedListAnswer.getOptionsChosen().get(optionIndex).equals(orderedList.getOrderedListOptions().get(optionIndex))) {
+                                    correctAnswers.getAndSet(correctAnswers.get() + 1);
+                                } else {
+                                    wrongAnswers.getAndSet(wrongAnswers.get() + 1);
+                                }
+                            }
+                            allAnswers.getAndSet(allAnswers.get() + orderedList.getOrderedListOptions().size());
+                        }
+                    }
+                    case "DRAG_AND_DROP" -> {
+                        DragAndDropAnswer dragAndDropAnswer = getDragAndDropAnswer(answerMap);
+                        if (dragAndDropAnswer.getQuestionId().equals(entityQuestion.getId())) {
+                            dragAndDropAnswers.add(dragAndDropAnswer);
+                            DragAndDrop dragAndDrop = (DragAndDrop) entityQuestion.getQuestion();
+                            if (dragAndDropAnswer.getBalance().equals(dragAndDrop.getBalance())) {
+                                correctAnswers.getAndSet(correctAnswers.get() + 1);
+                            } else {
+                                wrongAnswers.getAndSet(wrongAnswers.get() + 1);
+                            }
+                            allAnswers.getAndSet(allAnswers.get() + 1);
                         }
                     }
                 }
@@ -155,6 +186,22 @@ public class AnswerService {
         var multipleChoiceOptions = (List<Integer>) answer.get("optionChosen");
         return MultipleChoiceAnswer.builder()
                 .optionsChosen(multipleChoiceOptions)
+                .questionId((String) answer.get("questionId"))
+                .build();
+    }
+
+    private OrderedListAnswer getOrderedListAnswer(LinkedHashMap<?, ?> answer) {
+        @SuppressWarnings("unchecked")
+        var orderedListOptions = (List<String>) answer.get("optionChosen");
+        return OrderedListAnswer.builder()
+                .optionsChosen(orderedListOptions)
+                .questionId((String) answer.get("questionId"))
+                .build();
+    }
+
+    private DragAndDropAnswer getDragAndDropAnswer(LinkedHashMap<?,?> answer) {
+        return DragAndDropAnswer.builder()
+                .balance((Integer) answer.get("optionChosen"))
                 .questionId((String) answer.get("questionId"))
                 .build();
     }

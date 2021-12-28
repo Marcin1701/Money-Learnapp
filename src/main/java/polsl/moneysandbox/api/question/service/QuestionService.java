@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import polsl.moneysandbox.api.entry.jwt.JwtTokenUtility;
+import polsl.moneysandbox.api.question.mapper.QuestionMapper;
 import polsl.moneysandbox.api.question.service.request.QuestionRequest;
 import polsl.moneysandbox.api.question.service.response.QuestionResponse;
 import polsl.moneysandbox.model.User;
@@ -31,6 +32,8 @@ public class QuestionService {
 
     private final QuestionRepository questionRepository;
 
+    private final QuestionMapper questionMapper;
+
     public void addQuestion(QuestionRequest<?> question, String token) {
         User user = userRepository
                 .findAccountByEmailOrLogin(
@@ -40,7 +43,7 @@ public class QuestionService {
         switch (question.getType()) {
             case "SINGLE_CHOICE" -> {
                 Question<SingleChoice> createdSingleChoiceQuestion = new Question<>();
-                SingleChoice singleChoiceQuestion = createSingleChoice((LinkedHashMap<?, ?>) question.getStructure());
+                SingleChoice singleChoiceQuestion = questionMapper.createSingleChoice((LinkedHashMap<?, ?>) question.getStructure());
                 createdSingleChoiceQuestion.setType(question.getType());
                 createdSingleChoiceQuestion.setCreationDate(LocalDateTime.now().toString());
                 createdSingleChoiceQuestion.setCreatorId(user.getId());
@@ -56,7 +59,7 @@ public class QuestionService {
             }
             case "MULTIPLE_CHOICE" -> {
                 Question<MultipleChoice> createdMultipleChoiceQuestion = new Question<>();
-                MultipleChoice multipleChoiceQuestion = createMultipleChoice((LinkedHashMap<?, ?>) question.getStructure());
+                MultipleChoice multipleChoiceQuestion = questionMapper.createMultipleChoice((LinkedHashMap<?, ?>) question.getStructure());
                 createdMultipleChoiceQuestion.setType(question.getType());
                 createdMultipleChoiceQuestion.setCreationDate(LocalDateTime.now().toString());
                 createdMultipleChoiceQuestion.setCreatorId(user.getId());
@@ -70,46 +73,40 @@ public class QuestionService {
                 userRepository.save(user);
                 questionRepository.save(createdMultipleChoiceQuestion);
             }
-            // TODO INNE PYTANIA
-            case "LIST", "DRAG_AND_DROP" -> {
+            case "ORDERED_LIST"-> {
+                Question<OrderedList> createdOrderedListQuestion = new Question<>();
+                OrderedList orderedListQuestion = questionMapper.createOrderedList((LinkedHashMap<?, ?>) question.getStructure());
+                createdOrderedListQuestion.setType(question.getType());
+                createdOrderedListQuestion.setCreationDate(LocalDateTime.now().toString());
+                createdOrderedListQuestion.setCreatorId(user.getId());
+                createdOrderedListQuestion.setQuestion(orderedListQuestion);
+                List<Question<OrderedList>> createdOrderedListQuestions = user.getOrderedListQuestions();
+                if (createdOrderedListQuestions == null) {
+                    createdOrderedListQuestions = new ArrayList<>();
+                }
+                createdOrderedListQuestions.add(createdOrderedListQuestion);
+                user.setOrderedListQuestions(createdOrderedListQuestions);
+                userRepository.save(user);
+                questionRepository.save(createdOrderedListQuestion);
+            }
+            case "DRAG_AND_DROP" -> {
+                Question<DragAndDrop> createdDragAndDropQuestion = new Question<>();
+                DragAndDrop dragAndDropQuestion = questionMapper.createDragAndDrop((LinkedHashMap<?, ?>) question.getStructure());
+                createdDragAndDropQuestion.setType(question.getType());
+                createdDragAndDropQuestion.setCreationDate(LocalDateTime.now().toString());
+                createdDragAndDropQuestion.setCreatorId(user.getId());
+                createdDragAndDropQuestion.setQuestion(dragAndDropQuestion);
+                List<Question<DragAndDrop>> createdDragAndDropQuestions = user.getDragAndDropQuestions();
+                if (createdDragAndDropQuestions == null) {
+                    createdDragAndDropQuestions = new ArrayList<>();
+                }
+                createdDragAndDropQuestions.add(createdDragAndDropQuestion);
+                user.setDragAndDropQuestions(createdDragAndDropQuestions);
+                userRepository.save(user);
+                questionRepository.save(createdDragAndDropQuestion);
             }
             default -> throw new IllegalStateException("Unexpected question type");
         }
-    }
-
-    private SingleChoice createSingleChoice(LinkedHashMap<?, ?> question) {
-        @SuppressWarnings("unchecked")
-        var singleChoiceOptions = (List<String>) ((LinkedHashMap<?, ?>)question.get("value")).get("singleChoiceOptions");
-        return SingleChoice.builder()
-                .answerTime((String) question.get("answerTime"))
-                .name((String) question.get("name"))
-                .question((String) question.get("question"))
-                .correctSingleChoiceIndex((Integer) ((LinkedHashMap<?, ?>)question.get("value")).get("correctSingleChoiceOptionIndex"))
-                .singleChoiceOptions(singleChoiceOptions)
-                .build();
-
-    }
-
-    private MultipleChoice createMultipleChoice(LinkedHashMap<?, ?> question) {
-        @SuppressWarnings("unchecked")
-        var multipleChoiceOptions = (List<String>) ((LinkedHashMap<?, ?>)question.get("value")).get("multipleChoiceOptions");
-        @SuppressWarnings("unchecked")
-        var multipleChoiceCorrectIndices = (List<Integer>) ((LinkedHashMap<?, ?>)question.get("value")).get("correctMultipleChoiceOptionIndices");
-        return MultipleChoice.builder()
-                .answerTime((String) question.get("answerTime"))
-                .name((String) question.get("name"))
-                .question((String) question.get("question"))
-                .multipleChoiceOptions(multipleChoiceOptions)
-                .correctMultipleChoiceOptionIndices(multipleChoiceCorrectIndices)
-                .build();
-    }
-
-    private OrderedList createOrderedList(LinkedHashMap<?, ?> question) {
-        return null;
-    }
-
-    private DragAndDrop createDragAndDrop(LinkedHashMap<?, ?> question) {
-        return null;
     }
 
     public List<QuestionResponse<SingleChoice>> getSingleChoiceQuestions(String token) {
@@ -138,6 +135,36 @@ public class QuestionService {
                 .findAllByCreatorIdAndType(user.getId(), "MULTIPLE_CHOICE")
                 .stream()
                 .map(question -> (Question<MultipleChoice>) question)
+                .toList();
+        return questionList.stream().map(QuestionResponse::new).toList();
+    }
+
+    public List<QuestionResponse<OrderedList>> getOrderedListQuestions(String token) {
+        User user = userRepository
+                .findAccountByEmailOrLogin(
+                        jwtTokenUtility.getUsernameFromToken(token),
+                        jwtTokenUtility.getUsernameFromToken(token))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        @SuppressWarnings("unchecked")
+        List<Question<OrderedList>> questionList = questionRepository
+                .findAllByCreatorIdAndType(user.getId(), "ORDERED_LIST")
+                .stream()
+                .map(question -> (Question<OrderedList>) question)
+                .toList();
+        return questionList.stream().map(QuestionResponse::new).toList();
+    }
+
+    public List<QuestionResponse<DragAndDrop>> getDragAndDropQuestions(String token) {
+        User user = userRepository
+                .findAccountByEmailOrLogin(
+                        jwtTokenUtility.getUsernameFromToken(token),
+                        jwtTokenUtility.getUsernameFromToken(token))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        @SuppressWarnings("unchecked")
+        List<Question<DragAndDrop>> questionList = questionRepository
+                .findAllByCreatorIdAndType(user.getId(), "DRAG_AND_DROP")
+                .stream()
+                .map(question -> (Question<DragAndDrop>) question)
                 .toList();
         return questionList.stream().map(QuestionResponse::new).toList();
     }

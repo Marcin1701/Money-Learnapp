@@ -2,6 +2,8 @@ package polsl.moneysandbox.model.question;
 
 import lombok.*;
 
+import java.util.List;
+
 @Builder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -15,4 +17,6 @@ public class OrderedList {
     private String name;
 
     private String answerTime;
+
+    private List<String> orderedListOptions;
 }
