@@ -1,7 +1,13 @@
 package polsl.moneysandbox.api.answer.service;
 
 import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import polsl.moneysandbox.api.answer.request.AnswersRequest;
@@ -27,6 +33,7 @@ import polsl.moneysandbox.repository.FormRepository;
 import polsl.moneysandbox.repository.QuestionRepository;
 import polsl.moneysandbox.repository.UserRepository;
 
+import java.io.ByteArrayInputStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -46,6 +53,8 @@ public class AnswerService {
     private final UserRepository userRepository;
 
     private final JwtTokenUtility jwtTokenUtility;
+
+    private final PdfReportService pdfReportService;
 
     public ResultsResponse addAnswers(AnswersRequest answersRequest) {
         Form form = formRepository.findById(answersRequest.getFormId())
@@ -231,5 +240,18 @@ public class AnswerService {
         answersSummary.setAllWrongQuestions(allWrongQuestions.get());
         answersSummary.setAllQuestions(allQuestions.get());
         return answersSummary;
+    }
+
+    public ImmutablePair<ByteArrayInputStream, String> getActivityReport(String token) {
+        User user = userRepository
+                .findAccountByEmailOrLogin(
+                        jwtTokenUtility.getUsernameFromToken(token),
+                        jwtTokenUtility.getUsernameFromToken(token))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        try {
+            return new ImmutablePair<>(PdfReportService.generatePdfReport(getAnswersSummary(token), user), user.getLogin());
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE);
+        }
     }
 }
