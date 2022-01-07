@@ -16,7 +16,5 @@ public class OrderedList {
 
     private String name;
 
-    private String answerTime;
-
     private List<String> orderedListOptions;
 }

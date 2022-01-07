@@ -16,8 +16,6 @@ public class SingleChoice {
 
     private String name;
 
-    private String answerTime;
-
     private Integer correctSingleChoiceIndex;
 
     private List<String> singleChoiceOptions;

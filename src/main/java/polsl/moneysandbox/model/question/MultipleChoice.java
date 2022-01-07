@@ -16,8 +16,6 @@ public class MultipleChoice {
 
     private String name;
 
-    private String answerTime;
-
     private List<String> multipleChoiceOptions;
 
     private List<Integer> correctMultipleChoiceOptionIndices;

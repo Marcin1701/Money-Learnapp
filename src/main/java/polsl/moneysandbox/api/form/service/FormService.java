@@ -155,4 +155,18 @@ public class FormService {
         List<String> answeredFormIds = answers.stream().map(Answer::getSheetId).toList();
         return formRepository.findAllByIdIn(answeredFormIds).stream().map(FormResponse::new).toList();
     }
+
+    public void deleteForm(String token, String id) {
+        User user = userRepository
+                .findAccountByEmailOrLogin(
+                        jwtTokenUtility.getUsernameFromToken(token),
+                        jwtTokenUtility.getUsernameFromToken(token))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        List<Form> userForms = formRepository.getAllByCreatorId(user.getId());
+        if (userForms.stream().anyMatch(form -> form.getId().equals(id))) {
+            formRepository.deleteById(id);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+    }
 }

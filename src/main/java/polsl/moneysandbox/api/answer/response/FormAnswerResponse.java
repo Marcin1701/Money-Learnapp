@@ -1,7 +1,7 @@
 package polsl.moneysandbox.api.answer.response;
 
 import lombok.*;
-import polsl.moneysandbox.api.question.service.response.QuestionResponse;
+import polsl.moneysandbox.api.question.response.QuestionResponse;
 
 import java.util.List;
 

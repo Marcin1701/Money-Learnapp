@@ -22,4 +22,9 @@ public class AccountApi {
     public AccountRole role(@RequestHeader("Authorization") String token) {
         return accountService.getAccountRole(token);
     }
+
+    @PutMapping
+    public void updateAccount(@RequestHeader("Authorization") String token, @RequestBody AccountResponse accountResponse) {
+        this.accountService.updateAccount(token, accountResponse);
+    }
 }

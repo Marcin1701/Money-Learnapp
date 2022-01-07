@@ -1,4 +1,4 @@
-package polsl.moneysandbox.api.question.service.request;
+package polsl.moneysandbox.api.question.request;
 
 import lombok.*;
 

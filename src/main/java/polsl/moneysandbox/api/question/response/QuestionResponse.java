@@ -1,4 +1,4 @@
-package polsl.moneysandbox.api.question.service.response;
+package polsl.moneysandbox.api.question.response;
 
 import lombok.*;
 import polsl.moneysandbox.model.Question;

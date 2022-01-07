@@ -14,7 +14,6 @@ public class QuestionMapper {
         @SuppressWarnings("unchecked")
         var singleChoiceOptions = (List<String>) ((LinkedHashMap<?, ?>)question.get("value")).get("singleChoiceOptions");
         return SingleChoice.builder()
-                .answerTime((String) question.get("answerTime"))
                 .name((String) question.get("name"))
                 .question((String) question.get("question"))
                 .correctSingleChoiceIndex((Integer) ((LinkedHashMap<?, ?>)question.get("value")).get("correctSingleChoiceOptionIndex"))
@@ -29,7 +28,6 @@ public class QuestionMapper {
         @SuppressWarnings("unchecked")
         var multipleChoiceCorrectIndices = (List<Integer>) ((LinkedHashMap<?, ?>)question.get("value")).get("correctMultipleChoiceOptionIndices");
         return MultipleChoice.builder()
-                .answerTime((String) question.get("answerTime"))
                 .name((String) question.get("name"))
                 .question((String) question.get("question"))
                 .multipleChoiceOptions(multipleChoiceOptions)
@@ -41,7 +39,6 @@ public class QuestionMapper {
         @SuppressWarnings("unchecked")
         var orderedListOptions = (List<String>) ((LinkedHashMap<?, ?>)question.get("value")).get("orderedListOptions");
         return OrderedList.builder()
-                .answerTime((String) question.get("answerTime"))
                 .name((String) question.get("name"))
                 .question((String) question.get("question"))
                 .orderedListOptions(orderedListOptions)
@@ -58,7 +55,6 @@ public class QuestionMapper {
             optionCosts.add((Integer) option.get("optionCost"));
         });
         return DragAndDrop.builder()
-                .answerTime((String) question.get("answerTime"))
                 .name((String) question.get("name"))
                 .question((String) question.get("question"))
                 .optionCost(optionCosts)

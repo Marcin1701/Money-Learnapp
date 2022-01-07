@@ -1,4 +1,4 @@
-package polsl.moneysandbox;
+package polsl.moneysandbox.security;
 
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -55,7 +55,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .cors()
                 .and()
                 .authorizeRequests()
-                .antMatchers("/api/entry/login", "/api/entry/new", "/api/entry/validate")
+                .antMatchers(
+                        "/api/entry/login",
+                        "/api/entry/new",
+                        "/api/entry/validate")
                 .permitAll()
                 .and()
                 .exceptionHandling()
