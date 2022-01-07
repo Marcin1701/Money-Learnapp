@@ -33,7 +33,8 @@ public class MoneySandboxApplication extends SpringBootServletInitializer {
                         "https://szkatulkowy-ambaras.herokuapp.com",
                         "https://szkatulkowy-ambaras.herokuapp.com/api",
                         "https://money-sandbox.herokuapp.com",
-                        "https://money-sandbox.herokuapp.com/api");
+                        "https://money-sandbox.herokuapp.com/api")
+                        .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE");
             }
         };
     }

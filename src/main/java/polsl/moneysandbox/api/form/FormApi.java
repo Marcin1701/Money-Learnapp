@@ -37,10 +37,11 @@ public class FormApi {
         return this.formService.isFormInPublish(token, id);
     }
 
-    @GetMapping("/publish/waiting")
-    public List<FormResponse> getFormsWaitingForPublicity(@RequestHeader("Authorization") String token) {
+     @GetMapping("/publish/waiting")
+     public List<FormResponse> getFormsWaitingForPublicity(
+            @RequestHeader("Authorization") String token) {
         return this.formService.getFormsWaitingForPublicity(token);
-    }
+     }
 
     @GetMapping("/publish/approve")
     public void publishForm(@RequestHeader("Authorization") String token, @RequestParam("id") String id) {
@@ -55,5 +56,10 @@ public class FormApi {
     @PostMapping("/add")
     public void addForm(@RequestHeader("Authorization") String token, @RequestBody FormRequest formRequest) {
         this.formService.addForm(token, formRequest);
+    }
+
+    @DeleteMapping
+    public void deleteForm(@RequestHeader("Authorization") String token, @RequestParam("id") String id) {
+        this.formService.deleteForm(token, id);
     }
 }

@@ -2,12 +2,7 @@ package polsl.moneysandbox.api.answer.service;
 
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import polsl.moneysandbox.api.answer.request.AnswersRequest;
@@ -15,7 +10,7 @@ import polsl.moneysandbox.api.answer.response.AnswersSummary;
 import polsl.moneysandbox.api.answer.response.FormAnswerResponse;
 import polsl.moneysandbox.api.answer.response.ResultsResponse;
 import polsl.moneysandbox.api.entry.jwt.JwtTokenUtility;
-import polsl.moneysandbox.api.question.service.response.QuestionResponse;
+import polsl.moneysandbox.api.question.response.QuestionResponse;
 import polsl.moneysandbox.model.Answer;
 import polsl.moneysandbox.model.Form;
 import polsl.moneysandbox.model.Question;
@@ -135,7 +130,7 @@ public class AnswerService {
         });
         response.setCorrectAnswers(correctAnswers.get());
         response.setWrongAnswers(wrongAnswers.get());
-        response.setPercentage(((response.getCorrectAnswers() * 100.0f) / allAnswers.get()) + "%");
+        response.setPercentage((100f * response.getCorrectAnswers() / response.getAllQuestions()) + "%");
         Answer answerEntity = Answer.builder()
                 .sheetId(form.getId())
                 .answerTime(LocalDateTime.now())
@@ -235,7 +230,7 @@ public class AnswerService {
             sumOfPercentages.updateAndGet(v -> v + (float) answer.getCorrectAnswers() / answer.getAllAnswers());
         });
         answersSummary.setAllAnswers(allAnswers);
-        answersSummary.setAllAnswersPercentage(((sumOfPercentages.get() / allAnswers) * 100) + "%");
+        answersSummary.setAllAnswersPercentage(String.format("%.2f", (100f * allCorrectQuestions.get() / allQuestions.get())) + "%");
         answersSummary.setAllCorrectQuestions(allCorrectQuestions.get());
         answersSummary.setAllWrongQuestions(allWrongQuestions.get());
         answersSummary.setAllQuestions(allQuestions.get());

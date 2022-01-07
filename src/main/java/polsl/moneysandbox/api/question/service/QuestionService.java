@@ -6,14 +6,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import polsl.moneysandbox.api.entry.jwt.JwtTokenUtility;
 import polsl.moneysandbox.api.question.mapper.QuestionMapper;
-import polsl.moneysandbox.api.question.service.request.QuestionRequest;
-import polsl.moneysandbox.api.question.service.response.QuestionResponse;
+import polsl.moneysandbox.api.question.request.QuestionIdsRequest;
+import polsl.moneysandbox.api.question.request.QuestionRequest;
+import polsl.moneysandbox.api.question.response.QuestionResponse;
+import polsl.moneysandbox.model.Form;
 import polsl.moneysandbox.model.User;
 import polsl.moneysandbox.model.Question;
 import polsl.moneysandbox.model.question.DragAndDrop;
 import polsl.moneysandbox.model.question.MultipleChoice;
 import polsl.moneysandbox.model.question.OrderedList;
 import polsl.moneysandbox.model.question.SingleChoice;
+import polsl.moneysandbox.repository.FormRepository;
 import polsl.moneysandbox.repository.UserRepository;
 import polsl.moneysandbox.repository.QuestionRepository;
 
@@ -31,6 +34,8 @@ public class QuestionService {
     private final UserRepository userRepository;
 
     private final QuestionRepository questionRepository;
+
+    private final FormRepository formRepository;
 
     private final QuestionMapper questionMapper;
 
@@ -167,5 +172,41 @@ public class QuestionService {
                 .map(question -> (Question<DragAndDrop>) question)
                 .toList();
         return questionList.stream().map(QuestionResponse::new).toList();
+    }
+
+    public void deleteQuestion(String token, String id) {
+        User user = userRepository
+                .findAccountByEmailOrLogin(
+                        jwtTokenUtility.getUsernameFromToken(token),
+                        jwtTokenUtility.getUsernameFromToken(token))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        List<Question<?>> questions = questionRepository.findAllByCreatorId(user.getId());
+        if (questions.stream().anyMatch(question -> question.getId().equals(id))) {
+            List<Form> forms = formRepository.getAllByCreatorId(user.getId());
+            forms.forEach(form -> {
+                var formQuestionsIds = form.getQuestionsIds();
+                if (formQuestionsIds.stream().anyMatch(question -> question.equals(id))) {
+                    formQuestionsIds.remove(id);
+                    if (formQuestionsIds.size() == 0) {
+                        formRepository.deleteById(form.getId());
+                    } else {
+                        form.setIsPublic(false);
+                    }
+                }
+            });
+            formRepository.saveAll(forms);
+            questionRepository.deleteById(id);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    public List<? extends QuestionResponse<?>> previewQuestions(QuestionIdsRequest idsRequests, String token) {
+        User user = userRepository
+                .findAccountByEmailOrLogin(
+                        jwtTokenUtility.getUsernameFromToken(token),
+                        jwtTokenUtility.getUsernameFromToken(token))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        return questionRepository.findAllByIdIn(idsRequests.getIds()).stream().map(QuestionResponse::new).toList();
     }
 }

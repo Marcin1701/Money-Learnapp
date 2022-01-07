@@ -16,8 +16,6 @@ public class DragAndDrop {
 
     private String name;
 
-    private String answerTime;
-
     private Integer balance;
 
     private List<String> optionName;

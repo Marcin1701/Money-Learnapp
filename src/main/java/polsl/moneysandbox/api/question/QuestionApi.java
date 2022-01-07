@@ -2,9 +2,10 @@ package polsl.moneysandbox.api.question;
 
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import polsl.moneysandbox.api.question.request.QuestionIdsRequest;
 import polsl.moneysandbox.api.question.service.QuestionService;
-import polsl.moneysandbox.api.question.service.request.QuestionRequest;
-import polsl.moneysandbox.api.question.service.response.QuestionResponse;
+import polsl.moneysandbox.api.question.request.QuestionRequest;
+import polsl.moneysandbox.api.question.response.QuestionResponse;
 import polsl.moneysandbox.model.question.DragAndDrop;
 import polsl.moneysandbox.model.question.MultipleChoice;
 import polsl.moneysandbox.model.question.OrderedList;
@@ -42,5 +43,15 @@ public class QuestionApi {
     @PostMapping("/new")
     public void addQuestion(@RequestBody QuestionRequest<?> question, @RequestHeader("Authorization") String token) {
         this.questionService.addQuestion(question, token);
+    }
+
+    @PostMapping("/preview")
+    public List<? extends QuestionResponse<?>> previewQuestions(@RequestBody QuestionIdsRequest idsRequests, @RequestHeader("Authorization") String token) {
+        return this.questionService.previewQuestions(idsRequests, token);
+    }
+
+    @DeleteMapping
+    public void deleteQuestion(@RequestHeader("Authorization") String token, @RequestParam("id") String id) {
+        this.questionService.deleteQuestion(token, id);
     }
 }
