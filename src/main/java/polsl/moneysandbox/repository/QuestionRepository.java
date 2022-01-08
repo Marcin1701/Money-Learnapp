@@ -14,4 +14,6 @@ public interface QuestionRepository extends MongoRepository<Question<?>, String>
     List<Question<?>> findAllByCreatorId(String creatorId);
 
     List<Question<?>> findAllByIdIn(List<String> ids);
+
+    void deleteAllByCreatorId(String id);
 }

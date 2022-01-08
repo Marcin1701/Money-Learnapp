@@ -3,6 +3,7 @@ package polsl.moneysandbox.api.form;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import polsl.moneysandbox.api.form.request.FormRequest;
+import polsl.moneysandbox.api.form.response.FormManageResponse;
 import polsl.moneysandbox.api.form.response.FormPublicityResponse;
 import polsl.moneysandbox.api.form.response.FormResponse;
 import polsl.moneysandbox.api.form.response.HomeFormResponse;
@@ -37,11 +38,11 @@ public class FormApi {
         return this.formService.isFormInPublish(token, id);
     }
 
-     @GetMapping("/publish/waiting")
-     public List<FormResponse> getFormsWaitingForPublicity(
+    @GetMapping("/publish/waiting")
+    public List<FormResponse> getFormsWaitingForPublicity(
             @RequestHeader("Authorization") String token) {
         return this.formService.getFormsWaitingForPublicity(token);
-     }
+    }
 
     @GetMapping("/publish/approve")
     public void publishForm(@RequestHeader("Authorization") String token, @RequestParam("id") String id) {
@@ -53,6 +54,11 @@ public class FormApi {
         return this.formService.getAnsweredForms(token);
     }
 
+    @GetMapping("/manage")
+    public List<FormManageResponse> getManageForms(@RequestHeader("Authorization") String token) {
+        return this.formService.getManageForms(token);
+    }
+
     @PostMapping("/add")
     public void addForm(@RequestHeader("Authorization") String token, @RequestBody FormRequest formRequest) {
         this.formService.addForm(token, formRequest);
@@ -61,5 +67,10 @@ public class FormApi {
     @DeleteMapping
     public void deleteForm(@RequestHeader("Authorization") String token, @RequestParam("id") String id) {
         this.formService.deleteForm(token, id);
+    }
+
+    @DeleteMapping("/admin")
+    public void adminDeleteForm(@RequestHeader("Authorization") String token, @RequestParam("id") String id) {
+        this.formService.adminDeleteForm(token, id);
     }
 }
