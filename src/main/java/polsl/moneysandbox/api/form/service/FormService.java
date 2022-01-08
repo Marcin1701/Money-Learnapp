@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import polsl.moneysandbox.api.entry.jwt.JwtTokenUtility;
 import polsl.moneysandbox.api.form.request.FormRequest;
+import polsl.moneysandbox.api.form.response.FormManageResponse;
 import polsl.moneysandbox.api.form.response.FormPublicityResponse;
 import polsl.moneysandbox.api.form.response.FormResponse;
 import polsl.moneysandbox.api.form.response.HomeFormResponse;
@@ -167,6 +168,42 @@ public class FormService {
             formRepository.deleteById(id);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    public List<FormManageResponse> getManageForms(String token) {
+        User user = userRepository
+                .findAccountByEmailOrLogin(
+                        jwtTokenUtility.getUsernameFromToken(token),
+                        jwtTokenUtility.getUsernameFromToken(token))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        if (user.getRole().equals("ADMIN")) {
+            List<FormManageResponse> formManageResponses = new ArrayList<>();
+            List<Form> forms = formRepository.findAll();
+            forms.forEach(form -> {
+                Optional<User> creator = userRepository.findById(form.getCreatorId());
+                if (creator.isPresent()) {
+                    formManageResponses.add(new FormManageResponse(form, creator.get()));
+                } else {
+                    formManageResponses.add(new FormManageResponse(form));
+                }
+            });
+            return formManageResponses;
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    public void adminDeleteForm(String token, String id) {
+        User user = userRepository
+                .findAccountByEmailOrLogin(
+                        jwtTokenUtility.getUsernameFromToken(token),
+                        jwtTokenUtility.getUsernameFromToken(token))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        if (user.getRole().equals("ADMIN")) {
+            formRepository.deleteById(id);
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
     }
 }

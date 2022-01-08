@@ -14,4 +14,6 @@ public interface FormRepository extends MongoRepository<Form, String> {
     List<Form> getAllByIsPublic(Boolean isPublic);
 
     List<Form> findAllByIdIn(List<String> sheetIds);
+
+    void deleteAllByCreatorId(String id);
 }

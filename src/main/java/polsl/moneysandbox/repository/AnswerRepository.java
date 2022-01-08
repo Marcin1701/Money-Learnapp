@@ -10,4 +10,6 @@ import java.util.List;
 public interface AnswerRepository extends MongoRepository<Answer, String> {
 
     List<Answer> findAllByUserId(String userId);
+
+    void deleteAllByUserId(String id);
 }
