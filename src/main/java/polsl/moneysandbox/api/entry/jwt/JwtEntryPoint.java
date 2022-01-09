@@ -1,6 +1,5 @@
 package polsl.moneysandbox.api.entry.jwt;
 
-import lombok.AllArgsConstructor;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;

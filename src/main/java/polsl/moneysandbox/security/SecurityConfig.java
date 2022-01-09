@@ -12,6 +12,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import polsl.moneysandbox.api.entry.jwt.JwtEntryPoint;
 import polsl.moneysandbox.api.entry.jwt.JwtRequestFilter;
 import polsl.moneysandbox.api.entry.service.UserDetailsServiceImpl;
@@ -19,17 +21,13 @@ import polsl.moneysandbox.api.entry.service.UserDetailsServiceImpl;
 @Configuration
 @AllArgsConstructor
 @EnableWebSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfig extends WebSecurityConfigurerAdapter implements WebMvcConfigurer {
 
     private final JwtEntryPoint jwtEntryPoint;
 
     private final JwtRequestFilter jwtRequestFilter;
 
     private final UserDetailsServiceImpl userDetailsService;
-
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService).passwordEncoder(encoder());
-    }
 
     @Bean
     public PasswordEncoder encoder() {
@@ -40,6 +38,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public AuthenticationManager authenticationManager() throws Exception {
         return super.authenticationManager();
+    }
+
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**").allowedOrigins(
+                "http://localhost:4200",
+                        "https://szkatulkowy-ambaras.herokuapp.com",
+                        "https://szkatulkowy-ambaras.herokuapp.com/api",
+                        "https://money-sandbox.herokuapp.com",
+                        "https://money-sandbox.herokuapp.com/api")
+                .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE");
     }
 
     @Override

@@ -33,6 +33,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Service
@@ -49,8 +50,6 @@ public class AnswerService {
 
     private final JwtTokenUtility jwtTokenUtility;
 
-    private final PdfReportService pdfReportService;
-
     public ResultsResponse addAnswers(AnswersRequest answersRequest) {
         Form form = formRepository.findById(answersRequest.getFormId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -63,6 +62,7 @@ public class AnswerService {
         AtomicReference<Integer> allAnswers = new AtomicReference<>(0);
         AtomicReference<Integer> correctAnswers = new AtomicReference<>(0);
         AtomicReference<Integer> wrongAnswers = new AtomicReference<>(0);
+        AtomicReference<Float> percentages = new AtomicReference<>(0.f);
         form.getQuestionsIds().forEach(question -> {
             Question<?> entityQuestion = questionRepository.findById(question)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST));
@@ -76,6 +76,7 @@ public class AnswerService {
                             SingleChoice entitySingleChoice = (SingleChoice) entityQuestion.getQuestion();
                             if (entitySingleChoice.getCorrectSingleChoiceIndex().equals(singleChoiceAnswer.getOptionChosen())) {
                                 correctAnswers.getAndSet(correctAnswers.get() + 1);
+                                percentages.getAndSet(percentages.get() + 1.f);
                             } else {
                                 wrongAnswers.getAndSet(wrongAnswers.get() + 1);
                             }
@@ -87,13 +88,16 @@ public class AnswerService {
                         if (multipleChoiceAnswer.getQuestionId().equals(entityQuestion.getId())) {
                             multipleChoiceAnswers.add(multipleChoiceAnswer);
                             MultipleChoice multipleChoice = (MultipleChoice) entityQuestion.getQuestion();
+                            AtomicInteger multipleChoiceCorrectAnswers = new AtomicInteger();
                             multipleChoiceAnswer.getOptionsChosen().forEach(chosenOption -> {
                                 if (multipleChoice.getCorrectMultipleChoiceOptionIndices().stream().anyMatch(correct -> correct.equals(chosenOption))) {
                                     correctAnswers.getAndSet(correctAnswers.get() + 1);
+                                    multipleChoiceCorrectAnswers.addAndGet(1);
                                 } else {
                                     wrongAnswers.getAndSet(wrongAnswers.get() + 1);
                                 }
                             });
+                            percentages.getAndSet(percentages.get() + ((float) multipleChoiceCorrectAnswers.get() / multipleChoice.getCorrectMultipleChoiceOptionIndices().size()));
                             allAnswers.getAndSet(allAnswers.get() + multipleChoice.getMultipleChoiceOptions().size());
                         }
                     }
@@ -130,7 +134,7 @@ public class AnswerService {
         });
         response.setCorrectAnswers(correctAnswers.get());
         response.setWrongAnswers(wrongAnswers.get());
-        response.setPercentage((100f * response.getCorrectAnswers() / response.getAllQuestions()) + "%");
+        response.setPercentage((100f * percentages.get() / response.getAllQuestions()) + "%");
         Answer answerEntity = Answer.builder()
                 .sheetId(form.getId())
                 .answerTime(LocalDateTime.now())

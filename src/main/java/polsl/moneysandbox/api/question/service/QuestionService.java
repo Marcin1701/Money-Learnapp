@@ -202,11 +202,12 @@ public class QuestionService {
     }
 
     public List<? extends QuestionResponse<?>> previewQuestions(QuestionIdsRequest idsRequests, String token) {
-        User user = userRepository
-                .findAccountByEmailOrLogin(
-                        jwtTokenUtility.getUsernameFromToken(token),
-                        jwtTokenUtility.getUsernameFromToken(token))
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
-        return questionRepository.findAllByIdIn(idsRequests.getIds()).stream().map(QuestionResponse::new).toList();
+        if (userRepository.findAccountByEmailOrLogin(
+                jwtTokenUtility.getUsernameFromToken(token),
+                jwtTokenUtility.getUsernameFromToken(token)).isPresent()) {
+            return questionRepository.findAllByIdIn(idsRequests.getIds()).stream().map(QuestionResponse::new).toList();
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
     }
 }
