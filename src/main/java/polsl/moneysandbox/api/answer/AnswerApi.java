@@ -2,7 +2,6 @@ package polsl.moneysandbox.api.answer;
 
 import lombok.AllArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +12,6 @@ import polsl.moneysandbox.api.answer.response.FormAnswerResponse;
 import polsl.moneysandbox.api.answer.response.ResultsResponse;
 import polsl.moneysandbox.api.answer.service.AnswerService;
 
-import java.awt.*;
 import java.time.LocalDateTime;
 
 @RestController

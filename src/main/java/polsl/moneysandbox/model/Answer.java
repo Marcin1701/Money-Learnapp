@@ -12,9 +12,6 @@ import polsl.moneysandbox.model.answer.MultipleChoiceAnswer;
 import polsl.moneysandbox.model.answer.OrderedListAnswer;
 import polsl.moneysandbox.model.answer.SingleChoiceAnswer;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
 import java.time.LocalDateTime;
 import java.util.List;
 

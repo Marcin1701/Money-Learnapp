@@ -22,20 +22,4 @@ public class MoneySandboxApplication extends SpringBootServletInitializer {
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
         return application.sources(MoneySandboxApplication .class);
     }
-
-    @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurerAdapter() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**").allowedOrigins(
-                        "http://localhost:4200",
-                        "https://szkatulkowy-ambaras.herokuapp.com",
-                        "https://szkatulkowy-ambaras.herokuapp.com/api",
-                        "https://money-sandbox.herokuapp.com",
-                        "https://money-sandbox.herokuapp.com/api")
-                        .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE");
-            }
-        };
-    }
 }

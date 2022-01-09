@@ -13,6 +13,4 @@ public interface FormToVerifyRepository extends MongoRepository<FormToVerify, St
     Optional<FormToVerify> findFormToVerifyBySheetId(String sheetId);
 
     List<FormToVerify> findAllByIsPendingVerificationIsTrue();
-
-    void deleteBySheetId(String sheetId);
 }
