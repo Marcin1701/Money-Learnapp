@@ -43,7 +43,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements WebM
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**").allowedOrigins(
-                "http://localhost:4200",
+                        "http://localhost:4200",
                         "https://szkatulkowy-ambaras.herokuapp.com",
                         "https://szkatulkowy-ambaras.herokuapp.com/api",
                         "https://money-sandbox.herokuapp.com",
