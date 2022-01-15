@@ -106,13 +106,16 @@ public class AnswerService {
                         if (orderedListAnswer.getQuestionId().equals(entityQuestion.getId())) {
                             orderedListAnswers.add(orderedListAnswer);
                             OrderedList orderedList = (OrderedList) entityQuestion.getQuestion();
+                            AtomicInteger orderedListCorrectAnswers = new AtomicInteger();
                             for (int optionIndex = 0; optionIndex < orderedListAnswer.getOptionsChosen().size(); optionIndex++) {
                                 if (orderedListAnswer.getOptionsChosen().get(optionIndex).equals(orderedList.getOrderedListOptions().get(optionIndex))) {
                                     correctAnswers.getAndSet(correctAnswers.get() + 1);
+                                    orderedListCorrectAnswers.addAndGet(1);
                                 } else {
                                     wrongAnswers.getAndSet(wrongAnswers.get() + 1);
                                 }
                             }
+                            percentages.getAndSet(percentages.get() + ((float) orderedListCorrectAnswers.get() / orderedList.getOrderedListOptions().size()));
                             allAnswers.getAndSet(allAnswers.get() + orderedList.getOrderedListOptions().size());
                         }
                     }
@@ -123,6 +126,7 @@ public class AnswerService {
                             DragAndDrop dragAndDrop = (DragAndDrop) entityQuestion.getQuestion();
                             if (dragAndDropAnswer.getBalance().equals(dragAndDrop.getBalance())) {
                                 correctAnswers.getAndSet(correctAnswers.get() + 1);
+                                percentages.getAndSet(percentages.get() + 1.f);
                             } else {
                                 wrongAnswers.getAndSet(wrongAnswers.get() + 1);
                             }
@@ -134,7 +138,8 @@ public class AnswerService {
         });
         response.setCorrectAnswers(correctAnswers.get());
         response.setWrongAnswers(wrongAnswers.get());
-        response.setPercentage((100f * percentages.get() / response.getAllQuestions()) + "%");
+        float percentage = (100f * percentages.get() / response.getAllQuestions());
+        response.setPercentage(String.format("%.2f", percentage) + "%");
         Answer answerEntity = Answer.builder()
                 .sheetId(form.getId())
                 .answerTime(LocalDateTime.now())
